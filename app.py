@@ -10,13 +10,22 @@ from itsdangerous import URLSafeTimedSerializer, SignatureExpired, BadSignature
 app = Flask(__name__)
 # Generate a strong random secret key
 app.secret_key = os.urandom(24)
-# Set secure cookie settings
-app.config.update(
-    SESSION_COOKIE_SECURE=True,  # Only transmit cookies over HTTPS
-    SESSION_COOKIE_HTTPONLY=True,  # Prevent JavaScript access to cookies
-    SESSION_COOKIE_SAMESITE='Lax',  # Restrict cookie sending to same-site requests
-    PERMANENT_SESSION_LIFETIME=datetime.timedelta(hours=1)  # Session expires after 1 hour
-)
+
+# Configure secure cookies based on environment
+if os.environ.get('FLASK_ENV') == 'production':
+    app.config.update(
+        SESSION_COOKIE_SECURE=True,      # Only transmit cookies over HTTPS
+        SESSION_COOKIE_HTTPONLY=True,     # Prevent JavaScript access to cookies
+        SESSION_COOKIE_SAMESITE='Lax',    # Restrict cookie sending to same-site requests
+        PERMANENT_SESSION_LIFETIME=datetime.timedelta(hours=1))
+else:
+    # Development settings (less strict for local testing)
+    app.config.update(
+        SESSION_COOKIE_SECURE=False,      # Allow HTTP in development
+        SESSION_COOKIE_HTTPONLY=True,     # Still prevent JS access
+        SESSION_COOKIE_SAMESITE='Lax',
+        PERMANENT_SESSION_LIFETIME=datetime.timedelta(hours=1))
+
 DATABASE = 'members.db'
 
 # Session ID encryption serializer
@@ -328,4 +337,18 @@ def logout():
     return redirect(url_for('login'))
 
 if __name__ == '__main__':
-    app.run(debug=True, ssl_context='adhoc')  # Enable HTTPS in development
+    # Set FLASK_ENV environment variable
+    os.environ['FLASK_ENV'] = 'development'  # Change to 'production' when deploying
+    
+    if os.environ.get('FLASK_ENV') == 'production':
+        # In production, use proper SSL certificates
+        app.run(host='0.0.0.0', port=443, ssl_context=(
+            '/path/to/cert.pem', 
+            '/path/to/key.pem'
+        ))
+    else:
+        # In development, use adhoc SSL or HTTP based on cookie settings
+        if app.config['SESSION_COOKIE_SECURE']:
+            app.run(debug=True, ssl_context='adhoc')
+        else:
+            app.run(debug=True)
