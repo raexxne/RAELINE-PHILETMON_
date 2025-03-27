@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <title>Add Class</title>
+</head>
+<body>
+    <h1>Add Class</h1>
+    <form method="POST">
+        <input type="text" name="class_name" placeholder="Class Name" required>
+        <input type="text" name="class_time" placeholder="Class Time" required>
+        <button type="submit">Add Class</button>
+    </form>
+</body>
+</html>

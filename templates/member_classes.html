@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ member[1] }}'s Classes</title>
+</head>
+<body>
+    <h1>Classes for {{ member[1] }}</h1>
+    {% if classes %}
+        <table>
+            <tr>
+                <th>Class Name</th>
+                <th>Class Time</th>
+            </tr>
+            {% for class in classes %}
+            <tr>
+                <td>{{ class[0] }}</td>
+                <td>{{ class[1] }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+    {% else %}
+        <p>No classes registered for this member.</p>
+    {% endif %}
+    <br>
+    <a href="{{ url_for('view_members') }}">Back to Members List</a>
+    <br>
+    <a href="{{ url_for('register_class', member_id=member[0]) }}">Register New Class for {{ member[1] }}</a>
+</body>
+</html>
